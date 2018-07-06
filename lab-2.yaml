@@ -30,7 +30,10 @@ spec:
     image: 108lirik/mysql-client-git
     env:
     - name: PASSWORD
-      value: "pasSw0rd"
+      valueFrom:
+        secretKeyRef:
+          name: mysql-password
+          key: password
     resources:
       limits:
         cpu: 50m
