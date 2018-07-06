@@ -4,8 +4,8 @@ metadata:
   name: mysql-password
 type: Opaque
 data:
-  username: YWRtaW4=
-  password: MWYyZDFlMmU2N2Rm
+  username: cm9vdA==
+  password: cGFzU3cwcmQ=
 ---
 kind: Service
 apiVersion: v1
@@ -28,6 +28,7 @@ spec:
   containers:
   - name: mysql-client
     image: 108lirik/mysql-client-git
+    command: ["sh", "-c", "tail -f /dev/null"]
     env:
     - name: PASSWORD
       valueFrom:
@@ -35,7 +36,7 @@ spec:
           name: mysql-password
           key: password
     resources:
-      limits:
+      requests:
         cpu: 50m
         memory: 64Mi
 
@@ -50,7 +51,13 @@ spec:
   containers:
   - name: mysql-server
     image: mysql/mysql-server
+    env:
+    - name: PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: mysql-password
+          key: password
     resources:
-      limits:
+      requests:
         cpu: 100m
         memory: 256Mi
