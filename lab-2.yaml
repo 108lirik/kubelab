@@ -51,6 +51,12 @@ spec:
   containers:
   - name: mysql-server
     image: mysql/mysql-server
+    env:
+    - name: MYSQL_ROOT_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: mysql-password
+          key: password
     resources:
       requests:
         cpu: 100m
