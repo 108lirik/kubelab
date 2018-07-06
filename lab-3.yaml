@@ -1,16 +1,15 @@
+---
+kind: Service
 apiVersion: v1
-kind: ConfigMap
 metadata:
-  name: nginx-1-config
-data:
-  nginx.conf: |
-    server {
-    listen 80;
-    root /usr/share/nginx/html;
-
-    location / {
-               }
-    }
+  name: web
+spec:
+  selector:
+    application: www
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -30,37 +29,20 @@ spec:
       initContainers:
       - name: initor
         image: 108lirik/nginx-curl
-        command: ['sh', '-c', 'curl MAIN_PAGE >> /usr/share/nginx/html/main.html']
+        command: ['sh', '-c', 'curl MAIN_PAGE >>/usr/share/nginx/html/index.html']
         volumeMounts:
           - name: nginx-pv
             mountPath: /usr/share/nginx/html
-          
+
       containers:
       - name: nginx
         image: 108lirik/nginx-curl
         ports:
         - containerPort: 80
         volumeMounts:
-          - name: nginx-1-config
-            mountPath: /etc/nginx/conf.d
           - mountPath: /usr/share/nginx/html
             name: nginx-pv
 
       volumes:
-        - name: nginx-1-config
-          configMap:
-            name: nginx-1-config
         - name: nginx-pv
           emptyDir: {}
----
-kind: Service
-apiVersion: v1
-metadata:
-  name: web
-spec:
-  selector:
-    application: www
-  ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 80
