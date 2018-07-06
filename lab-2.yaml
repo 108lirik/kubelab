@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-password
+type: Opaque
+data:
+  username: YWRtaW4=
+  password: MWYyZDFlMmU2N2Rm
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: mysql
+spec:
+  selector:
+    role: server
+  ports:
+  - protocol: TCP
+    port: 3306
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mysql-client
+  labels:
+    role: client
+spec:
+  containers:
+  - name: mysql-client
+    image: 108lirik/mysql-client-git
+    env:
+    - name: PASSWORD
+      value: "pasSw0rd"
+    resources:
+      limits:
+        cpu: 50m
+        memory: 64Mi
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mysql-server
+  labels:
+    role: server
+spec:
+  containers:
+  - name: mysql-server
+    image: mysql/mysql-server
+    resources:
+      limits:
+        cpu: 100m
+        memory: 256Mi
