@@ -12,23 +12,10 @@ data:
                }
     }
 ---
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-  name: nginx-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 5Mi
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nginx-deployment
-  labels:
-    application: www
 spec:
   replicas: 1
   selector:
@@ -39,23 +26,32 @@ spec:
       labels:
         application: www
     spec:
+
+      initContainers:
+      - name: initor
+        image: 108lirik/nginx-curl
+        command: ['sh', '-c', 'curl MAIN_PAGE >> /usr/share/nginx/html/main.html']
+        volumeMounts:
+          - name: nginx-pv
+            mountPath: /usr/share/nginx/html
+          
       containers:
       - name: nginx
-        image: nginx:1.7.9
+        image: 108lirik/nginx-curl
         ports:
         - containerPort: 80
         volumeMounts:
           - name: nginx-1-config
             mountPath: /etc/nginx/conf.d
           - mountPath: /usr/share/nginx/html
-            name: nginx-pvc
+            name: nginx-pv
+
       volumes:
         - name: nginx-1-config
           configMap:
             name: nginx-1-config
-        - name: nginx-volume
-          persistentVolumeClaim:
-            claimName: nginx-pvc
+        - name: nginx-pv
+          emptyDir: {}
 ---
 kind: Service
 apiVersion: v1
